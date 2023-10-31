@@ -6,5 +6,12 @@ import lombok.Data;
 public class RegistrationReqDto {
   private String username;
   private String password;
-  private String totpCode;
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
 }

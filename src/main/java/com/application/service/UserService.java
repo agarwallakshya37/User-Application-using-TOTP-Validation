@@ -10,17 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
   @Autowired
   private UserRepository userRepository;
+
   @Autowired
   private PasswordEncoder passwordEncoder;
 
   public void registerUser(RegistrationReqDto registrationRequest) throws UserAuthException {
     User user = new User();
-    user.setUsername(registrationRequest.getUsername());
+
+    if(userRepository.findByUsername(user.getUsername()).isPresent()){
+      user.setUsername(registrationRequest.getUsername());
+    }else {
+      throw new UserAuthException("Username already taken");
+    }
     user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
     user.setSecretKey(TotpUtils.generateSecretKey());
 
@@ -28,22 +36,22 @@ public class UserService {
   }
 
   public void authenticateUser(LoginRequestDto loginRequest) throws UserAuthException {
-    User user = userRepository.findByUsername(loginRequest.getUsername());
+    Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
 
-    if (user == null) {
+    if (user.isPresent()) {
       throw new UserAuthException("User not found");
+    }else{
+      boolean isCodeValid =
+          TotpUtils.validateSecretCode(user.get().getSecretKey(), loginRequest.getOtpVal());
+
+      if (!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
+        throw new UserAuthException("Wrong password. Please Try Again..");
+      }
+      if (!isCodeValid) {
+        throw new UserAuthException("Invalid TOTP code");
+      }
+
     }
-
-    boolean isCodeValid = TotpUtils.validateTotpCode(user.getSecretKey(), loginRequest.getTotpCode());
-
-    if (!isCodeValid) {
-      throw new UserAuthException("Invalid TOTP code");
-    }
-
-    if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      throw new UserAuthException("Invalid password");
-    }
-
   }
 
 }

@@ -4,8 +4,19 @@ import lombok.Data;
 
 @Data
 public class LoginRequestDto {
-  private String userId;
   private String username;
   private String password;
-  private String totpCode;
+  private String otpVal;
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getOtpVal() {
+    return otpVal;
+  }
 }
