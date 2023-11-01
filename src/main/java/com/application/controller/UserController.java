@@ -3,7 +3,6 @@ import com.application.service.UserService;
 import com.application.dto.LoginRequestDto;
 import com.application.exception.UserAuthException;
 import com.application.dto.RegistrationReqDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,8 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController{
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
 
   @PostMapping("/register")
   public ResponseEntity<String> registerUser(@RequestBody RegistrationReqDto registrationRequest) {

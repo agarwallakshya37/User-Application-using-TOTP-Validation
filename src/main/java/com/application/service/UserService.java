@@ -6,7 +6,6 @@ import com.application.exception.UserAuthException;
 import com.application.dto.RegistrationReqDto;
 import com.application.entity.User;
 import com.application.util.TotpUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +14,14 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
+
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
 
   public void registerUser(RegistrationReqDto registrationRequest) throws UserAuthException {
     User user = new User();
